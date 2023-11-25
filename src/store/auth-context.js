@@ -13,7 +13,7 @@ export const AuthContextProvider = (props) => {
     const userIsLoggedIn = !!token;
 
     const loginHandler = (token) => {
-        setToken();
+        setToken(token);
     };
 
     const logoutHandler = () => {
