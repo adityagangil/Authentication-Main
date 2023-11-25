@@ -19,9 +19,39 @@ export const AuthForm = () => {
 
         // optional: Add validation
         setIsLoading(true);
+
         if (isLogin) {
-        }
-        else {
+            // Login
+            fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCWSXbWnYhv5bm3JkBFljJMzOzvTWM1xdA',
+                {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        email: enteredEmail,
+                        password: enteredPassword,
+                        returnSecureToken: true
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            ).then((res) => {
+                setIsLoading(false);
+                if (res.ok) {
+                    return res.json().then((data) => {
+                        console.log('ID Token:', data.idToken);
+                    });
+                } else {
+                    return res.json().then((data) => {
+                        let errorMessage = 'Authentication Failed!';
+                        if (data && data.error && data.error.message) {
+                            errorMessage = data.error.message;
+                        }
+                        alert(errorMessage);
+                    });
+                }
+            });
+        } else {
+            // Signup
             fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCWSXbWnYhv5bm3JkBFljJMzOzvTWM1xdA',
                 {
                     method: 'POST',
@@ -30,22 +60,21 @@ export const AuthForm = () => {
                         password: enteredPassword,
                         returnSecureToken: true
                     }),
-                    headers:
-                    {
+                    headers: {
                         'Content-Type': 'application/json'
                     }
                 }
             ).then((res) => {
                 setIsLoading(false);
                 if (res.ok) {
-                    // ...
-                }else {
+                    // Handle successful signup
+                } else {
                     return res.json().then((data) => {
                         let errorMessage = 'Authentication Failed!';
-                        // if (data && data.error && data.error.message) {
-                        //     errorMessage = data.error.message;
-                        // }
-                        alert(errorMessage)
+                        if (data && data.error && data.error.message) {
+                            errorMessage = data.error.message;
+                        }
+                        alert(errorMessage);
                     });
                 }
             });
@@ -65,17 +94,23 @@ export const AuthForm = () => {
                     <input
                         type='password'
                         id='password'
-                        required ref={passwordInputRef} />
+                        required
+                        ref={passwordInputRef}
+                    />
                 </div>
                 <div className={classes.actions}>
-                    {!isLoading && <button>{isLogin ? 'Login' : 'Create Account'}</button>}
+                    {!isLoading && (
+                        <button>{isLogin ? 'Login' : 'Create Account'}</button>
+                    )}
                     {isLoading && <p>Sending Request...</p>}
                     <button
                         type='button'
                         className={classes.toggle}
                         onClick={switchAuthModeHandler}
                     >
-                        {isLogin ? 'Create new account' : 'Login with existing account'}
+                        {isLogin
+                            ? 'Create new account'
+                            : 'Login with existing account'}
                     </button>
                 </div>
             </form>
